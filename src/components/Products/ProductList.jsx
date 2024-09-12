@@ -15,6 +15,8 @@ const rating_placeholder = 4.5;
 const ProductList = () => {
     const [products, setProducts] = useState([]);
     const [images, setImages] = useState([]);
+    const [reviews, setReviews] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [vProducts, setVProducts] = useState([]);
@@ -65,25 +67,71 @@ const ProductList = () => {
         fetchImages();
     }, []);
 
-    // Match products to images once both are loaded
     useEffect(() => {
-        if (products.length > 0 && images.length > 0) {
-            const matchedProducts = matchProductsToImages(products, images);
-            setVProducts(matchedProducts);
-        }
-    }, [products, images]);
+        const fetchReviews = async () => {
+            try {
+                const response = await fetch(
+                    "http://localhost:5000/api/reviews"
+                );
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                const data = await response.json();
+                setReviews(data);
+            } catch (error) {
+                setError(error);
+                console.error("Error fetching reviews:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const matchProductsToImages = (products, images) => {
+        fetchReviews();
+    }, []);
+
+    const matchProductsToImagesAndReviews = (products, images, reviews) => {
         return products.map((product) => {
+            // Filter images and reviews for the current product
             const productImages = images.filter(
                 (image) => image.product_id === product.id
             );
+            const productReviews = reviews.filter(
+                (review) => review.product_id === product.id
+            );
+
+            // Calculate average rating
+            let averageReview = 0;
+            if (productReviews.length > 0) {
+                const totalRating = productReviews.reduce((sum, review) => {
+                    const rating = parseFloat(review.rating);
+                    return !isNaN(rating) ? sum + rating : sum; // Validate rating
+                }, 0);
+                averageReview = (totalRating / productReviews.length).toFixed(
+                    1
+                ); // Round to 2 decimal points
+            }
+
+            // Return the product with matched images and reviews
             return {
                 ...product,
                 images: productImages,
+                reviews: productReviews,
+                averageReviews: parseFloat(averageReview), // Convert back to number if needed
             };
         });
     };
+
+    // Usage within useEffect
+    useEffect(() => {
+        if (products.length > 0 && images.length > 0 && reviews.length > 0) {
+            const matchedProducts = matchProductsToImagesAndReviews(
+                products,
+                images,
+                reviews
+            );
+            setVProducts(matchedProducts);
+        }
+    }, [products, images, reviews]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
@@ -133,8 +181,8 @@ const ProductList = () => {
                                     <div className="flex items-center gap-1">
                                         <FaStar className="text-yellow-400" />
                                         <span>
-                                            {product.rating
-                                                ? product.rating
+                                            {product.averageReviews
+                                                ? product.averageReviews
                                                 : rating_placeholder}
                                         </span>
                                     </div>

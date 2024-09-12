@@ -11,6 +11,16 @@ This is a simple ecom site
 
 ## TO-DO LIST
 
+### LocalHost server
+
+In several files change the "http://localhost:5000/api/..." to what port you prefer or to an actual server location
+
+**Locations**
+
+-   `ProductList.jsx`
+-   `Product.jsx`
+-   `Hero.jsx`
+
 ### Server
 
 -   make sure passwords are encrypted when sent to the server
@@ -53,10 +63,15 @@ This is a simple ecom site
 -   Create a top-rated section in `ProductList.jsx`
 -   Add product sales performance to the database
 
+### Product.jsx
+- let users to add reviews
+
 ### Create Images
 
 -   Site logo
 -   Example product logos
+
+
 
 ### Pages to Create
 
@@ -64,3 +79,4 @@ This is a simple ecom site
 -   Wishlist page
 -   Account page (user, signup, and login/logout)
 -   Search results page
+
