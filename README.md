@@ -2,7 +2,13 @@
 
 ## ABOUT
 
-This is a simple ecom site
+This is a simple ecom site made by **[Alex Autumns](https://github.com/AlexAutumns)**
+
+Design is partially inspired by [Amazon](https://www.amazon.com/)
+
+The server is a Postgres server. There are some example data in the server. Here are the [SQL queries](https://github.com/AlexAutumns/ecomSite/tree/main/sql).
+
+This is a WIP (Work in Progress), so some features are not yet finished / implemented.
 
 ### NOTES
 
@@ -65,15 +71,14 @@ In several files change the "http://localhost:5000/api/..." to what port you pre
 -   Add product sales performance to the database
 
 ### Product.jsx
-- let users to add reviews
-- link users to reviews
+
+-   let users to add reviews
+-   link users to reviews
 
 ### Create Images
 
 -   Site logo
 -   Example product logos
-
-
 
 ### Pages to Create
 
@@ -81,4 +86,3 @@ In several files change the "http://localhost:5000/api/..." to what port you pre
 -   Wishlist page
 -   Account page (user, signup, and login/logout)
 -   Search results page
-
