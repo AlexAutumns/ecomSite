@@ -101,7 +101,7 @@ const Product = () => {
 
                                 <a
                                     href="#reviews"
-                                    className="text-[0.85rem] mx-4 text-yellow-200"
+                                    className="text-[0.85rem] mx-4 dark:text-yellow-200 text-yellow-500"
                                 >
                                     {reviews.length} ratings
                                 </a>
