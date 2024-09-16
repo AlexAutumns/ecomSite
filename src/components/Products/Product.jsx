@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import { FaStar } from "react-icons/fa6";
+import { Link } from "react-router-dom"; // Ensure this is included
 
-import userDefault from "../../assets/userDefault.svg"
+import { FaStar } from "react-icons/fa6";
+const name_placeholder = "THIS IS A PRODUCT NAME";
+const desc_placeholder = "THIS IS A PRODUCT DESCRIPTION";
+const price_placeholder = "THIS IS A PRODUCT PRICE";
+const rating_placeholder = 4.5;
+
+import userDefault from "../../assets/userDefault.svg";
 
 const Product = () => {
     const { productId } = useParams();
@@ -11,10 +17,6 @@ const Product = () => {
     const [product, setProduct] = useState(null);
     const [images, setImages] = useState([]);
     const [reviews, setReviews] = useState([]);
-    const [averageReview, setAverageReview] = useState(0);
-
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -52,6 +54,29 @@ const Product = () => {
         fetchData();
     }, [productId]);
 
+    const [averageReview, setAverageReview] = useState(0);
+    const [selectedImage, setSelectedImage] = useState({});
+
+    useEffect(() => {
+        const setDefaultImage = async () => {
+            if (!images) return setSelectedImage({});
+            if (!images[0]) return setSelectedImage({});
+            try {
+                setSelectedImage(images[0]);
+            } catch (error) {
+                setError(error);
+                console.error("Error setting default image", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        setDefaultImage();
+    }, [images]);
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     const getAverageReviews = (productReviews) => {
         if (productReviews.length > 0) {
             const totalRating = productReviews.reduce((sum, review) => {
@@ -69,8 +94,16 @@ const Product = () => {
 
     console.log("PRODUCT: ", product);
     console.log("IMAGES: ", images);
+    console.log("SELECTED IMAGE: ", selectedImage);
     console.log("REVIEWS: ", reviews);
     console.log("AVERAGE REVIEW: ", averageReview);
+
+    const handleClickMiniImage = (image) => {
+        if (image != selectedImage) {
+            setSelectedImage(image);
+            console.log("SET SELECTED IMAGE TO: ", image);
+        }
+    };
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
@@ -81,39 +114,62 @@ const Product = () => {
                 <div>
                     <div
                         id="main"
-                        className="mt-14 mb-12 shadow-md min-h-[500px] dark:bg-slate-400 my-4 py-7 px-6 flex justify-evenly items-center"
+                        className="mt-14 mb-12 shadow-md min-h-[500px] dark:bg-slate-400 my-4 py-7 px-6 flex justify-center"
                     >
-                        <img
-                            src={images[0].image_html}
-                            alt={images[0].image_desc}
-                            className="max-w-[30%] rounded-xl shadow-lg"
-                        />
+                        <div className="flex flex-col mx-3 justify-self-center w-[50%] justify-center">
+                            <img
+                                src={selectedImage.image_html}
+                                alt={selectedImage.image_desc}
+                                className="max-w-[60%] rounded-xl shadow-lg"
+                            />
 
-                        <div id="description" className="flex flex-col">
-                            <h1 className=" text-5xl">
-                                {product.product_name}
-                            </h1>
-                            <div className="flex items-center">
+                            <ul className="m-2 my-6 p-0 flex justify-center items-center">
+                                {images.map((image) => (
+                                    <li key={image.id}>
+                                        <img
+                                            src={image.image_html}
+                                            alt=""
+                                            className="max-w-[6.5%] shadow-md rounded-xl mx-2 transition-all ease-in-out hover:border-blue-400"
+                                            onClick={() =>
+                                                handleClickMiniImage(image)
+                                            } // Attach click event
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div
+                            id="description"
+                            className="flex flex-col min-h-[100%] m-0 justify-center"
+                        >
+                            <div>
+                                <h1 className=" text-5xl">
+                                    {product.product_name}
+                                </h1>
                                 <div className="flex items-center">
-                                    <FaStar className="text-yellow-300" />
-                                    <p>{averageReview}</p>
-                                </div>
+                                    <div className="flex items-center">
+                                        <FaStar className="text-yellow-300 mr-1" />
+                                        <p>{averageReview}</p>
+                                    </div>
 
-                                <a
-                                    href="#reviews"
-                                    className="text-[0.85rem] mx-4 dark:text-yellow-200 text-yellow-500"
-                                >
-                                    {reviews.length} ratings
-                                </a>
+                                    <a
+                                        href="#reviews"
+                                        className="text-[0.85rem] mx-5 dark:text-yellow-200 text-yellow-500"
+                                    >
+                                        {reviews.length} ratings
+                                    </a>
+                                </div>
                             </div>
 
-                            <div className="text-lg py-10 my-4 flex justify-evenly flex-col">
-                                <p className="font-bold text-[1.4rem]">
-                                    Price: ${product.price}
-                                </p>
-                                <div>
+                            <p className="font-bold text-[1.4rem]">
+                                Price: ${product.price}
+                            </p>
+
+                            <div className="text-lg py-10 my-4 flex justify-evenly flex-col min-h-[50%]">
+                                <div className="flex flex-col justify-evenly min-h-[70%]">
                                     <hr className="my-2" />
-                                    <h2 className="font-bold text-[1.1rem]">
+                                    <h2 className="font-bold text-[1.2rem]">
                                         ABOUT THIS PRODUCT
                                     </h2>
                                     <p className="text-[0.9rem]">
@@ -122,8 +178,9 @@ const Product = () => {
                                     <hr className="my-2" />
                                 </div>
                                 <p>Stock Quantity: {product.stock_quantity}</p>
-                                <p className="text-blue-300 dark:text-blue-600">{String(product.status).toUpperCase()}</p>
-
+                                <p className="text-blue-300 dark:text-blue-600">
+                                    {String(product.status).toUpperCase()}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -133,7 +190,6 @@ const Product = () => {
                         className="dark:bg-slate-400 dark:text-white  px-5 flex flex-col py-6"
                     >
                         <div>
-                            
                             <h1 className="text-[1.5rem] font-bold">
                                 Customer Reviews
                             </h1>
@@ -149,10 +205,18 @@ const Product = () => {
                                     transition-all ease-in-out hover:scale-[1.015]"
                                 >
                                     <div className="flex items-center mb-3">
-                                        <img src={userDefault} alt="" className="w-7 mr-2 dark:text-white text-black" />
-                                        <h2 className="font-bold text-[1.1rem]">Anonymous</h2>
+                                        <img
+                                            src={userDefault}
+                                            alt=""
+                                            className="w-7 mr-2 dark:text-white text-black"
+                                        />
+                                        <h2 className="font-bold text-[1.1rem]">
+                                            <Link to={`/product/${product.id}`}>
+                                                Anonymous
+                                            </Link>
+                                        </h2>
                                         <div className="flex items-center justify-center mx-4">
-                                            <FaStar className="text-yellow-300" />
+                                            <FaStar className="text-yellow-300 mr-1" />
                                             <p>{review.rating}</p>
                                         </div>
                                     </div>
