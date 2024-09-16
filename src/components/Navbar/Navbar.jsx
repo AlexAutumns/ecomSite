@@ -42,7 +42,7 @@ const DropdownLinks = [
 
 const Navbar = () => {
     return (
-        <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-100 relative z-40">
+        <div className="shadow-md bg-white dark:bg-gray-900 dark:text-white duration-100 fixed w-[100%] top-0 z-40">
             {/* upper navbar */}
             <div className="bg-third_color/40 py-2">
                 <div className="container flex justify-between items-center">

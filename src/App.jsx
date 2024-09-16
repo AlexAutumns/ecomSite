@@ -15,18 +15,23 @@ const App = () => {
         <Router>
             <div className="dark:bg-slate-900 max-h-[100%] font-ubuntu pb-11">
                 <Navbar />
-                <Routes>
-                    <Route
-                        path="/"
-                        element={
-                            <>
-                                <Hero />
-                                <ProductList />
-                            </>
-                        }
-                    />
-                    <Route path="/product/:productId" element={<Product />} />
-                </Routes>
+                <div className="pt-[4.5rem]">
+                    <Routes>
+                        <Route
+                            path="/"
+                            element={
+                                <>
+                                    <Hero />
+                                    <ProductList />
+                                </>
+                            }
+                        />
+                        <Route
+                            path="/product/:productId"
+                            element={<Product />}
+                        />
+                    </Routes>
+                </div>
             </div>
         </Router>
     );

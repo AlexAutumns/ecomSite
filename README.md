@@ -56,6 +56,7 @@ In several files change the "http://localhost:5000/api/..." to what port you pre
 ### Hero.jsx
 
 -   Make featured list change regularly
+-   Link order button to product page
 
 ### ProductList.jsx and Products Data
 
@@ -65,6 +66,7 @@ In several files change the "http://localhost:5000/api/..." to what port you pre
 
 ### Product.jsx
 - let users to add reviews
+- link users to reviews
 
 ### Create Images
 

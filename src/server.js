@@ -251,7 +251,6 @@ app.get("/api/products/:id", async (req, res) => {
     }
 });
 
-
 // Endpoint to Get images
 app.get("/api/images", async (req, res) => {
     try {
@@ -266,6 +265,36 @@ app.get("/api/images", async (req, res) => {
     } catch (err) {
         console.error("Error fetching images:", err.stack);
         res.status(500).send("Internal Server Error");
+    }
+});
+
+// Endpoint to get images for a specific product by product ID
+app.get("/api/images/:productId", async (req, res) => {
+    const { productId } = req.params; // Extract productId from the path
+
+    try {
+        // Query the database for images associated with the specific product ID
+        const result = await client.query(
+            "SELECT * FROM images WHERE product_id = $1", // Use parameterized query
+            [productId] // Pass the productId to the query
+        );
+
+        const imageList = result.rows.map((row) => ({
+            id: row.id,
+            product_id: row.product_id,
+            image_html: row.image_html,
+            image_desc: row.image_desc,
+        }));
+
+        // Check if any images were found
+        if (imageList.length > 0) {
+            res.json(imageList); // Return found images as JSON
+        } else {
+            res.status(404).send("No images found for the given product ID"); // Handle not found
+        }
+    } catch (err) {
+        console.error("Error fetching images:", err.stack);
+        res.status(500).send("Internal Server Error"); // Handle internal error
     }
 });
 
@@ -284,6 +313,37 @@ app.get("/api/reviews", async (req, res) => {
     } catch (err) {
         console.error("Error fetching images:", err.stack);
         res.status(500).send("Internal Server Error");
+    }
+});
+
+// Endpoint to get reviews for a specific product by product ID
+app.get("/api/reviews/:productId", async (req, res) => {
+    const { productId } = req.params; // Extract productId from the path
+
+    try {
+        // Query the database for reviews associated with the specific product ID
+        const result = await client.query(
+            "SELECT * FROM reviews WHERE product_id = $1", // Use parameterized query
+            [productId] // Pass the productId to the query
+        );
+
+        const reviewList = result.rows.map((row) => ({
+            id: row.id,
+            product_id: row.product_id,
+            rating: row.rating,
+            review_desc: row.review_desc,
+            created_at: row.created_at,
+        }));
+
+        // Check if any reviews were found
+        if (reviewList.length > 0) {
+            res.json(reviewList); // Return found reviews as JSON
+        } else {
+            res.status(404).send("No reviews found for the given product ID"); // Handle not found
+        }
+    } catch (err) {
+        console.error("Error fetching reviews:", err.stack);
+        res.status(500).send("Internal Server Error"); // Handle internal error
     }
 });
 
