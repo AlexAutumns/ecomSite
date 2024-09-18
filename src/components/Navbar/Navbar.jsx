@@ -20,11 +20,6 @@ const Menu = [
         name: "Categories",
         link: "/categories",
     },
-    {
-        id: 3,
-        name: "Wishlist",
-        link: `/wishlist:{id}`, // fix this
-    },
 ];
 
 const DropdownLinks = [
@@ -35,8 +30,13 @@ const DropdownLinks = [
     },
     {
         id: 2,
+        name: "Wishlist",
+        link: `/wishlist:id`, // check if it is going to a different account
+    },
+    {
+        id: 3,
         name: "Logout",
-        link: "/logout",
+        link: "/signin",
     },
 ];
 
@@ -118,9 +118,9 @@ const Navbar = () => {
                     {/* Account/ login / logout / sign up */}
 
                     {loggedIn ? (
-                        <li className="inline-block px-10 hover:text-third_color duration-300 group relative cursor-pointer">
+                        <li className="inline-block mt-2 px-10 hover:text-third_color duration-300 group relative cursor-pointer">
                             <Link
-                                to="/"
+                                to="/account"
                                 className="flex items-center gap-[2px] py-2"
                             >
                                 Account
@@ -130,7 +130,7 @@ const Navbar = () => {
                                 <div
                                     className="absolute items-center z-[9999] hidden group-hover:block w-[150px] rounded-md
                                     bg-white p-2 text-black shadow-md
-                                    translate-y-12 translate-x-6"
+                                    translate-y-[4.5rem] translate-x-6"
                                 >
                                     <ul>
                                         {DropdownLinks.map((data) => (
@@ -150,7 +150,7 @@ const Navbar = () => {
                     ) : (
                         <li className="inline-block px-10 hover:text-third_color duration-300 group relative cursor-pointer">
                             <Link
-                                to="/"
+                                to="/signin"
                                 className="flex items-center gap-[2px] py-2"
                             >
                                 Sign In
