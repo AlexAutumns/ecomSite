@@ -40,13 +40,12 @@ const Categories = () => {
         <div className="">
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center gap-x-2 gap-y-6">
                 {categories.map((category) => (
-                    <Link to={`/category/${category.id}`} key={category.id}>
+                    <Link to={`/categories/${category.id}`} key={category.id}>
                         <div
                             key={category.id}
                             className="p-8 space-y-4 rounded-md shadow-md 
-                            
                             flex justify-center items-center flex-col 
-                            hover:shadow-lg hover:scale-[1.07]
+                            hover:shadow-lg hover:scale-[1.07] hover:bg-cyan-100 dark:hover:bg-cyan-700
                             group transition-all ease-in-out duration-300
                             dark:bg-slate-700 dark:text-white
                             h-[6.25rem] w-[15.625rem]" // Set a fixed height (adjust as needed)

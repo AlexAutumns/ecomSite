@@ -58,6 +58,8 @@ In several files change the "http://localhost:5000/api/..." to what port you pre
 ### Navbar.jsx
 
 -   Fix links in the menu
+-   Make cart Button work
+-   Wishlist should go to user's wishlist using id
 
 ### Hero.jsx
 
