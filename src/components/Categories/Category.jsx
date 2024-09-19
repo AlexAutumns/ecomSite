@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 import { Link } from "react-router-dom"; // Ensure this is included
 
@@ -12,82 +13,79 @@ const desc_placeholder = "THIS IS A PRODUCT DESCRIPTION";
 const price_placeholder = "THIS IS A PRODUCT PRICE";
 const rating_placeholder = 4.5;
 
-const ProductList = () => {
+const Category = () => {
+    const { categoryId } = useParams();
+
+    const [category, setCategory] = useState([
+        {
+            id: 0,
+            name: "CATEGORY NAME",
+            category_desc: "THIS IS A CATEGORY DESCRIPTION",
+            is_deleted: true,
+        },
+    ]);
+
     const [products, setProducts] = useState([]);
     const [images, setImages] = useState([]);
     const [reviews, setReviews] = useState([]);
+    const [vProducts, setVProducts] = useState([]);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [vProducts, setVProducts] = useState([]);
 
-    // Fetch product data from the API
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchData = async () => {
+            setLoading(true); // Set loading to true at the start
             try {
-                const response = await fetch(
-                    "http://localhost:5000/api/products"
+                // Fetch category data
+                const categoryResponse = await fetch(
+                    `http://localhost:5000/api/categories/${categoryId}`
                 );
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
+                if (!categoryResponse.ok) {
+                    throw new Error("Network response was not ok for category");
                 }
-                const data = await response.json();
-                setProducts(data);
-            } catch (error) {
-                setError(error);
-                console.error("Error fetching products:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+                const categoryData = await categoryResponse.json();
+                setCategory(categoryData);
 
-        fetchProducts();
-    }, []);
+                // Fetch product data
+                const productsResponse = await fetch(
+                    `http://localhost:5000/api/categories/products/${categoryId}`
+                );
+                if (!productsResponse.ok) {
+                    throw new Error("Network response was not ok for products");
+                }
+                const productsData = await productsResponse.json();
+                setProducts(productsData);
 
-    // Fetch images from the API
-    useEffect(() => {
-        const fetchImages = async () => {
-            try {
-                const response = await fetch(
+                // Fetch images
+                const imagesResponse = await fetch(
                     "http://localhost:5000/api/images"
                 );
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
+                if (!imagesResponse.ok) {
+                    throw new Error("Network response was not ok for images");
                 }
-                const data = await response.json();
-                setImages(data);
-            } catch (error) {
-                setError(error);
-                console.error("Error fetching images:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+                const imagesData = await imagesResponse.json();
+                setImages(imagesData);
 
-        fetchImages();
-    }, []);
-
-    useEffect(() => {
-        const fetchReviews = async () => {
-            try {
-                const response = await fetch(
+                // Fetch reviews
+                const reviewsResponse = await fetch(
                     "http://localhost:5000/api/reviews"
                 );
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
+                if (!reviewsResponse.ok) {
+                    throw new Error("Network response was not ok for reviews");
                 }
-                const data = await response.json();
-                setReviews(data);
+                const reviewsData = await reviewsResponse.json();
+                setReviews(reviewsData);
             } catch (error) {
                 setError(error);
-                console.error("Error fetching reviews:", error);
+                console.error("Error fetching data: ", error);
             } finally {
-                setLoading(false);
+                setLoading(false); // Set loading to false regardless of success or error
             }
         };
 
-        fetchReviews();
-    }, []);
+        fetchData();
+    }, [categoryId]); // Dependency array includes categoryId
 
     const matchProductsToImagesAndReviews = (products, images, reviews) => {
         return products.map((product) => {
@@ -108,7 +106,7 @@ const ProductList = () => {
                 }, 0);
                 averageReview = (totalRating / productReviews.length).toFixed(
                     1
-                ); // Round to 2 decimal points
+                ); // Round to 1 decimal point
             }
 
             // Return the product with matched images and reviews
@@ -121,7 +119,6 @@ const ProductList = () => {
         });
     };
 
-    // Usage within useEffect
     useEffect(() => {
         if (products.length > 0 && images.length > 0 && reviews.length > 0) {
             const matchedProducts = matchProductsToImagesAndReviews(
@@ -131,8 +128,9 @@ const ProductList = () => {
             );
             setVProducts(matchedProducts);
         }
-    }, [products, images, reviews]);
+    }, [products, images, reviews]); // This effect runs when products, images, or reviews change
 
+    // You can return loading/error state and the fetched data as needed
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
 
@@ -142,15 +140,22 @@ const ProductList = () => {
             <div className="container">
                 <div className="text-center mb-10 max-w-[600px] mx-auto">
                     <h1 className="text-3xl font-bold dark:text-white">
-                        Products
+                        {category[0] && category[0].name
+                            ? `${category[0].name}`
+                            : "Loading..."}
                     </h1>
+                    <p className="dark:text-white my-3">
+                        {category[0] && category[0].category_desc
+                            ? `${category[0].category_desc}`
+                            : "Loading..."}
+                    </p>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center gap-5">
+                <hr />
+                <div className="my-6 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 place-items-center gap-5">
                     {vProducts.map((product) => (
                         <div
                             key={product.id}
-                            className="space-y-4 rounded-md py-1 px-1 shadow-md hover:shadow-lg hover:scale-105 dark:bg-gray-200  transition-all ease-in-out "
+                            className="space-y-4 rounded-md py-1 px-1 shadow-md hover:shadow-lg hover:scale-105 dark:bg-gray-200 transition-all ease-in-out "
                         >
                             <Link to={`/product/${product.id}`}>
                                 <img
@@ -201,4 +206,4 @@ const ProductList = () => {
     );
 };
 
-export default ProductList;
+export default Category;

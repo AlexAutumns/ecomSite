@@ -6,9 +6,12 @@ import Navbar from "./components/Navbar/Navbar.jsx";
 import BackToTopButton from "./components/BackToTopButton/BackToTopButton.jsx";
 
 import Hero from "./components/Hero/Hero.jsx";
+
 import ProductList from "./components/Products/ProductList.jsx";
 import Product from "./components/Products/Product.jsx";
+
 import Categories from "./components/Categories/Categories.jsx";
+import Category from "./components/Categories/Category.jsx";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -37,6 +40,10 @@ const App = () => {
                         <Route // Route to categories
                             path="/categories"
                             element={<Categories />}
+                        />
+                        <Route // Route to list of Products of a Category
+                            path="/categories/:categoryId"
+                            element={<Category />}
                         />
                     </Routes>
                 </div>
