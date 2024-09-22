@@ -5,6 +5,8 @@ import "./App.css";
 import Navbar from "./components/Navbar/Navbar.jsx";
 import BackToTopButton from "./components/BackToTopButton/BackToTopButton.jsx";
 
+import SearchResults from "./components/Search/SearchResults.jsx";
+
 import Hero from "./components/Hero/Hero.jsx";
 
 import ProductList from "./components/Products/ProductList.jsx";
@@ -19,7 +21,7 @@ import "slick-carousel/slick/slick-theme.css";
 const App = () => {
     return (
         <Router>
-            <div className="dark:bg-slate-900 min-h-[100vh] font-ubuntu py-2">
+            <div className="dark:bg-slate-900 min-h-[100vh] font-ubuntu pt-1">
                 <Navbar />
 
                 <div className="mt-[7%]">
@@ -45,6 +47,7 @@ const App = () => {
                             path="/categories/:categoryId"
                             element={<Category />}
                         />
+                        <Route path="/search" element={<SearchResults />} />
                     </Routes>
                 </div>
 

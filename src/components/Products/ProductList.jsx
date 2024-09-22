@@ -44,18 +44,21 @@ const ProductList = () => {
         fetchProducts();
     }, []);
 
-    // Fetch images from the API
+    // Fetch images
     useEffect(() => {
         const fetchImages = async () => {
+            setLoading(true);
+            setError(null);
+
             try {
-                const response = await fetch(
+                const imageResponse = await fetch(
                     "http://localhost:5000/api/images"
                 );
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
+                if (!imageResponse.ok) {
+                    throw new Error("Network response was not ok for images");
                 }
-                const data = await response.json();
-                setImages(data);
+                const imageData = await imageResponse.json();
+                setImages(imageData);
             } catch (error) {
                 setError(error);
                 console.error("Error fetching images:", error);
@@ -65,19 +68,23 @@ const ProductList = () => {
         };
 
         fetchImages();
-    }, []);
+    }, []); // This runs only once on component mount
 
+    // Fetch reviews
     useEffect(() => {
         const fetchReviews = async () => {
+            setLoading(true);
+            setError(null);
+
             try {
-                const response = await fetch(
+                const reviewResponse = await fetch(
                     "http://localhost:5000/api/reviews"
                 );
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
+                if (!reviewResponse.ok) {
+                    throw new Error("Network response was not ok for reviews");
                 }
-                const data = await response.json();
-                setReviews(data);
+                const reviewData = await reviewResponse.json();
+                setReviews(reviewData);
             } catch (error) {
                 setError(error);
                 console.error("Error fetching reviews:", error);
@@ -87,7 +94,7 @@ const ProductList = () => {
         };
 
         fetchReviews();
-    }, []);
+    }, []); // This runs only once on component mount
 
     const matchProductsToImagesAndReviews = (products, images, reviews) => {
         return products.map((product) => {
@@ -132,6 +139,11 @@ const ProductList = () => {
             setVProducts(matchedProducts);
         }
     }, [products, images, reviews]);
+
+    // console.log("Products: ", products);
+    // console.log("Images: ", images);
+    // console.log("Reviews: ", reviews);
+    // console.log("ALL: ", vProducts);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;

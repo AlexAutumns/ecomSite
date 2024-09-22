@@ -3,6 +3,11 @@ import cors from "cors";
 
 import pkg from "pg"; // Import the pg module as a default import
 
+import categoriesServerRoute from "./ServerModules/categoryServer.js";
+import productsServerRoute from "./ServerModules/productServer.js";
+import imagesServerRoute from "./ServerModules/imageServer.js";
+import reviewsServerRoute from "./ServerModules/reviewServer.js";
+
 const { Client } = pkg; // Destructure to get the Client class
 
 const app = express();
@@ -21,16 +26,17 @@ const client = new Client({
 client.connect();
 app.use(cors());
 
-// ======================================================================================================================
-// GET SECTION
-// -----------------------------------------------------------------------------------------------
-
 // Root route
 app.get("/", (req, res) => {
     res.send(
         "Welcome to the Product API! Use /api/products to get the product list."
     );
 });
+
+app.use("/api/products", productsServerRoute);
+app.use("/api/images", imagesServerRoute);
+app.use("/api/reviews", reviewsServerRoute);
+app.use("/api/categories", categoriesServerRoute);
 
 //
 // USER STUFF
@@ -216,63 +222,6 @@ app.get("/api/categories/:id", async (req, res) => {
     }
 });
 
-// Endpoint to get all products
-app.get("/api/products", async (req, res) => {
-    try {
-        const result = await client.query("SELECT * FROM products;");
-        const productList = result.rows.map((row) => ({
-            id: row.id,
-            product_name: row.product_name,
-            product_desc: row.product_desc,
-            price: row.price,
-            category_id: row.category_id,
-            stock_quantity: row.stock_quantity,
-            created_at: row.created_at,
-            user_id: row.user_id,
-            status: row.status,
-        }));
-        res.json(productList);
-    } catch (err) {
-        console.error("Error fetching products:", err.stack);
-        res.status(500).send("Internal Server Error");
-    }
-});
-
-// Endpoint to get specific product by ID
-app.get("/api/products/:id", async (req, res) => {
-    const { id } = req.params; // Extract the id from the path
-
-    try {
-        // Query the database for the specific product
-        const result = await client.query(
-            "SELECT * FROM products WHERE id = $1", // Use parameterized query
-            [id] // Pass the ID to the query
-        );
-
-        const productList = result.rows.map((row) => ({
-            id: row.id,
-            product_name: row.product_name,
-            product_desc: row.product_desc,
-            price: row.price,
-            category_id: row.category_id,
-            stock_quantity: row.stock_quantity,
-            created_at: row.created_at,
-            user_id: row.user_id,
-            status: row.status,
-        }));
-
-        // Check if any products were found
-        if (productList.length > 0) {
-            res.json(productList); // Return found products as JSON
-        } else {
-            res.status(404).send("No product found with the given ID"); // Handle not found
-        }
-    } catch (err) {
-        console.error("Error fetching specific product:", err.stack);
-        res.status(500).send("Internal Server Error"); // Handle internal error
-    }
-});
-
 // Endpoint to get specific product by Category ID
 app.get("/api/categories/products/:id", async (req, res) => {
     const { id } = req.params; // Extract the id from the path
@@ -307,114 +256,6 @@ app.get("/api/categories/products/:id", async (req, res) => {
         res.status(500).send("Internal Server Error"); // Handle internal error
     }
 });
-
-// Endpoint to Get images
-app.get("/api/images", async (req, res) => {
-    try {
-        const result = await client.query("SELECT * FROM images;");
-        const imageList = result.rows.map((row) => ({
-            id: row.id,
-            product_id: row.product_id,
-            image_html: row.image_html,
-            image_desc: row.image_desc,
-        }));
-        res.json(imageList);
-    } catch (err) {
-        console.error("Error fetching images:", err.stack);
-        res.status(500).send("Internal Server Error");
-    }
-});
-
-// Endpoint to get images for a specific product by product ID
-app.get("/api/images/:productId", async (req, res) => {
-    const { productId } = req.params; // Extract productId from the path
-
-    try {
-        // Query the database for images associated with the specific product ID
-        const result = await client.query(
-            "SELECT * FROM images WHERE product_id = $1", // Use parameterized query
-            [productId] // Pass the productId to the query
-        );
-
-        const imageList = result.rows.map((row) => ({
-            id: row.id,
-            product_id: row.product_id,
-            image_html: row.image_html,
-            image_desc: row.image_desc,
-        }));
-
-        // Check if any images were found
-        if (imageList.length > 0) {
-            res.json(imageList); // Return found images as JSON
-        } else {
-            res.status(404).send("No images found for the given product ID"); // Handle not found
-        }
-    } catch (err) {
-        console.error("Error fetching images:", err.stack);
-        res.status(500).send("Internal Server Error"); // Handle internal error
-    }
-});
-
-// Endpoint to Get Reviews
-app.get("/api/reviews", async (req, res) => {
-    try {
-        const result = await client.query("SELECT * FROM reviews;");
-        const reviewList = result.rows.map((row) => ({
-            id: row.id,
-            product_id: row.product_id,
-            rating: row.rating,
-            review_desc: row.review_desc,
-            created_at: row.created_at,
-        }));
-        res.json(reviewList);
-    } catch (err) {
-        console.error("Error fetching images:", err.stack);
-        res.status(500).send("Internal Server Error");
-    }
-});
-
-// Endpoint to get reviews for a specific product by product ID
-app.get("/api/reviews/:productId", async (req, res) => {
-    const { productId } = req.params; // Extract productId from the path
-
-    try {
-        // Query the database for reviews associated with the specific product ID
-        const result = await client.query(
-            "SELECT * FROM reviews WHERE product_id = $1", // Use parameterized query
-            [productId] // Pass the productId to the query
-        );
-
-        const reviewList = result.rows.map((row) => ({
-            id: row.id,
-            product_id: row.product_id,
-            rating: row.rating,
-            review_desc: row.review_desc,
-            created_at: row.created_at,
-        }));
-
-        // Check if any reviews were found
-        if (reviewList.length > 0) {
-            res.json(reviewList); // Return found reviews as JSON
-        } else {
-            res.status(404).send("No reviews found for the given product ID"); // Handle not found
-        }
-    } catch (err) {
-        console.error("Error fetching reviews:", err.stack);
-        res.status(500).send("Internal Server Error"); // Handle internal error
-    }
-});
-
-// -----------------------------------------------------------------------------------------------
-// GET SECTION
-// ========================================================================================================================
-
-// ======================================================================================================================
-// SET SECTION
-// -----------------------------------------------------------------------------------------------
-
-// -----------------------------------------------------------------------------------------------
-// SET SECTION
-// ========================================================================================================================
 
 // Start the server
 app.listen(PORT, () => {

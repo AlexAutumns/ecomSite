@@ -226,6 +226,9 @@ const Product = () => {
                             ))}
                         </ul>
                     </div>
+
+                    <div id="products"
+                    ></div>
                 </div>
             ) : (
                 <div>Product not found</div>

@@ -27,6 +27,9 @@ In several files change the "http://localhost:5000/api/..." to what port you pre
 -   `Product.jsx`
 -   `Hero.jsx`
 
+### Home page not loading sometimes
+- when ever user goes to the home page it sometimes wont load and just show a blank screen
+
 ### Server
 
 -   make sure passwords are encrypted when sent to the server
@@ -39,8 +42,7 @@ In several files change the "http://localhost:5000/api/..." to what port you pre
     -   Get specific wishlist items of an user
     -   Get specific order items of an user
     ##### Product Stuff
-    -   Get specific product
-    -   Get specific images of a product
+    - Search product with price and name or price and desc in `productServer.js`
 
 ### Dark Mode
 
