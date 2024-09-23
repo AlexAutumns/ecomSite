@@ -17,9 +17,13 @@ This is a WIP (Work in Progress), so some features are not yet finished / implem
 
 ## TO-DO LIST
 
+### Specific Item fetching
+- change some fetches to be just get all items matching the items selected
+
 ### LocalHost server
 
-In several files change the "http://localhost:5000/api/..." to what port you prefer or to an actual server location
+- In several files change the "http://localhost:5000/api/..." to what port you prefer or to an actual server location
+
 
 **Locations**
 
@@ -34,6 +38,7 @@ In several files change the "http://localhost:5000/api/..." to what port you pre
 
 -   make sure passwords are encrypted when sent to the server
 -   some data should not be shown when finishing the site
+-   give a display name column for users
 
 -   #### Make Some GET Functions for Specific users / products
     ##### User Stuff

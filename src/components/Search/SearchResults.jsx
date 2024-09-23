@@ -15,7 +15,6 @@ const price_placeholder = "THIS IS A PRODUCT PRICE";
 const rating_placeholder = 4.5;
 
 const SearchResults = () => {
-    // Search Query Stuff ===========================
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -24,70 +23,71 @@ const SearchResults = () => {
 
     // Extract parameters from the URL
     const productName = queryParams.get("product_name") || "";
-    const productDesc = queryParams.get("product_desc") || "";
-    const categoryId = parseInt(queryParams.get("category_id")) || 0; // Ensure it's a number
-    const userId = parseInt(queryParams.get("user_id")) || 0; // Ensure it's a number
+    const categoryId = parseInt(queryParams.get("category_id")) || 0;
     const minPrice = queryParams.get("min_price") || "";
     const maxPrice = queryParams.get("max_price") || "";
 
     // State to manage search parameters
     const [searchParams, setSearchParams] = useState({
         product_name: productName,
-        product_desc: productDesc,
         category_id: categoryId,
-        user_id: userId,
         min_price: minPrice,
         max_price: maxPrice,
     });
 
-    // Update searchParams state when URL changes
+    // Effect to update searchParams when URL changes
     useEffect(() => {
         setSearchParams({
             product_name: productName,
-            product_desc: productDesc,
             category_id: categoryId,
-            user_id: userId,
             min_price: minPrice,
             max_price: maxPrice,
         });
-    }, [productName, productDesc, categoryId, userId, minPrice, maxPrice]);
+    }, [location.search]);
+
+    // Function to handle filter submission
+    const handleSubmitFilters = (e) => {
+        e.preventDefault(); // Prevent the default form submission
+        updateURL(searchParams);
+    };
 
     // Function to handle filter changes
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         const updatedParams = {
             ...searchParams,
-            [name]: value,
+            [name]: `${value}`, // Trim whitespace to prevent empty strings
         };
         setSearchParams(updatedParams);
-
-        // Update the URL
-        updateURL(updatedParams);
     };
 
     // Function to update the URL based on the current searchParams
     const updateURL = (params) => {
         const newParams = new URLSearchParams();
 
-        // Add parameters conditionally
         if (params.product_name) {
             newParams.set("product_name", params.product_name);
         }
-        if (params.product_desc) {
-            newParams.set("product_desc", params.product_desc);
+        if (params.category_id && params.category_id !== 0) {
+            newParams.set("category_id", params.category_id);
         }
-        if (params.category_id && params.category_id != 0) {
-            newParams.set("category_id", params.category_id); // Only add if not '0'
+        if (
+            params.min_price &&
+            !isNaN(params.min_price) &&
+            params.min_price !== ""
+        ) {
+            newParams.set("min_price", params.min_price);
         }
-        if (params.user_id && params.user_id !== 0) {
-            newParams.set("user_id", params.user_id); // Fix typo here
+        if (
+            params.max_price &&
+            !isNaN(params.max_price) &&
+            params.max_price !== ""
+        ) {
+            newParams.set("max_price", params.max_price);
         }
-        if (params.min_price) newParams.set("min_price", params.min_price);
-        if (params.max_price) newParams.set("max_price", params.max_price);
 
         navigate(`/search?${newParams.toString()}`);
     };
-
     // =============================================
 
     // FETCHES ==========================
@@ -137,12 +137,45 @@ const SearchResults = () => {
                         `http://localhost:5000/api/products/search/name/${productName}`
                     );
                 }
-
+                // Name and Category
+                else if (
+                    productName != "" &&
+                    categoryId != 0 &&
+                    minPrice == "" &&
+                    maxPrice == ""
+                ) {
+                    response = await fetch(
+                        `http://localhost:5000/api/products/search/name&category/${productName}&${categoryId}`
+                    );
+                }
+                // Name and Price
+                else if (
+                    productName != "" &&
+                    categoryId == 0 &&
+                    minPrice != "" &&
+                    maxPrice != ""
+                ) {
+                    response = await fetch(
+                        `http://localhost:5000/api/products/search/name&price/${productName}&${minPrice}to${maxPrice}`
+                    );
+                }
+                // Name, Category, and Price
+                else if (
+                    productName != "" &&
+                    categoryId != 0 &&
+                    minPrice != "" &&
+                    maxPrice != ""
+                ) {
+                    response = await fetch(
+                        `http://localhost:5000/api/products/search/name&category&price/${productName}&${categoryId}&${minPrice}to${maxPrice}`
+                    );
+                }
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
                 }
                 const data = await response.json();
                 setProducts(data);
+                console.log(`Searched products with queries`, searchParams);
             } catch (error) {
                 setError(error);
                 console.error("Error fetching products: ", error);
@@ -150,8 +183,9 @@ const SearchResults = () => {
                 setLoading(false);
             }
         };
+
         fetchProducts();
-    }, [productName, categoryId, minPrice, maxPrice]);
+    }, [location.search]);
 
     // Images ------------------
     const [images, setImages] = useState([]);
@@ -251,14 +285,13 @@ const SearchResults = () => {
                 reviews
             );
             setVProducts(matchedProducts);
+            // console.log("Categories: ", categories);
+            // console.log("Products: ", products);
+            // console.log("Images: ", images);
+            // console.log("Reviews: ", reviews);
+            // console.log("ALL: ", vProducts);
         }
     }, [products, images, reviews]);
-
-    // console.log("Categories: ", categories);
-    // console.log("Products: ", products);
-    // console.log("Images: ", images);
-    // console.log("Reviews: ", reviews);
-    console.log("ALL: ", vProducts);
 
     // =====================================
 
@@ -282,6 +315,23 @@ const SearchResults = () => {
             >
                 <h2 className="text-2xl font-bold dark:text-white">Filters</h2>
                 <form className="flex flex-col justify-evenly px-2">
+                    <button
+                        type="submit"
+                        className="rounded-lg shadow-md dark:bg-slate-400 my-4"
+                        onSubmit={handleSubmitFilters}
+                    >
+                        Search with Filters
+                    </button>
+                    <label className="flex flex-col justify-evenly my-2 dark:text-white">
+                        Search
+                        <input
+                            type="text"
+                            name="product_name"
+                            className="dark:bg-slate-700"
+                            value={searchParams.product_name} // Bind the product name
+                            onChange={handleFilterChange} // Handle input changes
+                        />
+                    </label>
                     <label className="flex flex-col justify-evenly my-2 dark:text-white">
                         Category
                         <select
@@ -318,6 +368,13 @@ const SearchResults = () => {
                             onChange={handleFilterChange}
                         />
                     </label>
+                    <button
+                        type="submit"
+                        className="rounded-lg shadow-md dark:bg-slate-400 my-6"
+                        onSubmit={handleSubmitFilters}
+                    >
+                        Search with Filters
+                    </button>
                 </form>
             </div>
             <div

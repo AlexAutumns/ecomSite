@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
             category_id: row.category_id,
             stock_quantity: row.stock_quantity,
             created_at: row.created_at,
-            user_id: row.user_id,
+            store_id: row.store_id,
             status: row.status,
         }));
         res.json(productList);
@@ -58,7 +58,7 @@ router.get("/:id", async (req, res) => {
             category_id: row.category_id,
             stock_quantity: row.stock_quantity,
             created_at: row.created_at,
-            user_id: row.user_id,
+            store_id: row.store_id,
             status: row.status,
         }));
 
@@ -66,7 +66,7 @@ router.get("/:id", async (req, res) => {
         if (productList.length > 0) {
             res.json(productList); // Return found products as JSON
         } else {
-            res.status(404).send("No product found with the given ID"); // Handle not found
+            res.status(404).send("No products found with the given ID"); // Handle not found
         }
     } catch (err) {
         console.error("Error fetching specific product:", err.stack);
@@ -76,7 +76,16 @@ router.get("/:id", async (req, res) => {
 
 // Endpoint to get products by search
 router.get("/search/:col/:search_query", async (req, res) => {
-    const allowedColumns = ["name", "desc", "price", "category", "user_id"];
+    const allowedColumns = [
+        "name",
+        "desc",
+        "price",
+        "category",
+        "user_id",
+        "name&category",
+        "name&price",
+        "name&category&price",
+    ];
     const { col, search_query } = req.params;
 
     // Validate the column name
@@ -140,6 +149,59 @@ router.get("/search/:col/:search_query", async (req, res) => {
                 [minPrice, maxPrice] // Use minPrice and maxPrice for the price range filter
             );
         }
+        // Handle search by Name, Category
+        else if (col.toLowerCase() == "name&category") {
+            const [nameStr, categoryStr] = search_query.split("&");
+            const category = categoryStr ? Number(categoryStr) : 0;
+
+            if (isNaN(category)) {
+                return res.status(400).send("Invalid category ID");
+            }
+
+            result = await client.query(
+                `SELECT * FROM products WHERE product_name ILIKE $1 AND category_id = $2`,
+                [`%${nameStr}%`, category]
+            );
+        }
+        // Handle search by Name, Price
+        else if (col.toLowerCase() == "name&price") {
+            const [nameStr, priceStr] = search_query.split("&");
+            const [minPriceStr, maxPriceStr] = priceStr.split("to");
+
+            const minPrice = minPriceStr ? Number(minPriceStr) : 0; // Default minPrice to 0
+            const maxPrice = maxPriceStr ? Number(maxPriceStr) : Infinity; // Default maxPrice to Infinity
+
+            if (isNaN(minPrice) || isNaN(maxPrice)) {
+                return res.status(400).send("Invalid price range format");
+            }
+
+            result = await client.query(
+                `SELECT * FROM products WHERE product_name ILIKE $1 AND price BETWEEN $2 AND $3`,
+                [`%${nameStr}%`, minPrice, maxPrice]
+            );
+        }
+        // Handle search by Name, Category, Price
+        else if (col.toLowerCase() == "name&category&price") {
+            const [nameStr, categoryStr, priceStr] = search_query.split("&");
+            const [minPriceStr, maxPriceStr] = priceStr.split("to");
+
+            const category = categoryStr ? Number(categoryStr) : 0;
+
+            const minPrice = minPriceStr ? Number(minPriceStr) : 0; // Default minPrice to 0
+            const maxPrice = maxPriceStr ? Number(maxPriceStr) : Infinity; // Default maxPrice to Infinity
+
+            if (isNaN(category)) {
+                return res.status(400).send("Invalid category ID");
+            }
+            if (isNaN(minPrice) || isNaN(maxPrice)) {
+                return res.status(400).send("Invalid price range format");
+            }
+
+            result = await client.query(
+                `SELECT * FROM products WHERE product_name ILIKE $1 AND category_id = $2 AND price BETWEEN $3 and $4`,
+                [`%${nameStr}%`, category, minPrice, maxPrice]
+            );
+        }
 
         const productList = result.rows.map((row) => ({
             id: row.id,
@@ -149,7 +211,7 @@ router.get("/search/:col/:search_query", async (req, res) => {
             category_id: row.category_id,
             stock_quantity: row.stock_quantity,
             created_at: row.created_at,
-            user_id: row.user_id,
+            store_id: row.store_id,
             status: row.status,
         }));
 

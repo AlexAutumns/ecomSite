@@ -1,4 +1,3 @@
-
 import { Router } from "express";
 
 import pkg from "pg"; // Import the pg module as a default import
@@ -23,10 +22,12 @@ router.get("/", async (req, res) => {
         const result = await client.query("SELECT * FROM reviews;");
         const reviewList = result.rows.map((row) => ({
             id: row.id,
+            user_id: row.user_id,
             product_id: row.product_id,
             rating: row.rating,
             review_desc: row.review_desc,
             created_at: row.created_at,
+            is_anonymous: row.is_anonymous,
         }));
         res.json(reviewList);
     } catch (err) {
@@ -48,10 +49,12 @@ router.get("/:productId", async (req, res) => {
 
         const reviewList = result.rows.map((row) => ({
             id: row.id,
+            user_id: row.user_id,
             product_id: row.product_id,
             rating: row.rating,
             review_desc: row.review_desc,
             created_at: row.created_at,
+            is_anonymous: row.is_anonymous,
         }));
 
         // Check if any reviews were found
@@ -65,6 +68,5 @@ router.get("/:productId", async (req, res) => {
         res.status(500).send("Internal Server Error"); // Handle internal error
     }
 });
-
 
 export default router; // Export the router

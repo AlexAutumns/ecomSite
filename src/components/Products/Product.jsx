@@ -17,19 +17,23 @@ const Product = () => {
     const [product, setProduct] = useState(null);
     const [images, setImages] = useState([]);
     const [reviews, setReviews] = useState([]);
-
+    const [reviewUsers, setReviewUsers] = useState({}); // Changed to an object for easier lookup
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    
     useEffect(() => {
         const fetchData = async () => {
-            if (!productId) return; // Avoid fetching if productId is not valid
+            setLoading(true);
+            if (!productId) return;
+    
             try {
                 const [productResponse, imagesResponse, reviewsResponse] =
                     await Promise.all([
-                        fetch(
-                            `http://localhost:5000/api/products/${productId}`
-                        ),
-                        fetch(`http://localhost:5000/api/images/${productId}`),
+                        fetch(`http://localhost:5000/api/products/${productId}`),
+                        fetch(`http://localhost:5000/api/images/product/${productId}`),
                         fetch(`http://localhost:5000/api/reviews/${productId}`),
                     ]);
+    
                 if (
                     !productResponse.ok ||
                     !imagesResponse.ok ||
@@ -37,12 +41,31 @@ const Product = () => {
                 ) {
                     throw new Error("Network response was not ok");
                 }
+    
                 const productData = await productResponse.json();
                 const imagesData = await imagesResponse.json();
                 const reviewsData = await reviewsResponse.json();
+    
+                // Create a map to hold user data
+                const usersData = {};
+    
+                // Use a forEach loop to iterate over reviewsData
+                await Promise.all(reviewsData.map(async (review) => {
+                    const userResponse = await fetch(`http://localhost:5000/api/users/public/${review.user_id}`);
+    
+                    if (!userResponse.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+    
+                    const userData = await userResponse.json();
+                    usersData[review.user_id] = userData; // Store user data with user_id as the key
+                }));
+    
+                // Set the state with fetched data
                 setProduct(productData[0]);
                 setImages(imagesData);
                 setReviews(reviewsData);
+                setReviewUsers(usersData); // Set users data
             } catch (error) {
                 setError(error);
                 console.error("Error fetching data:", error);
@@ -50,9 +73,15 @@ const Product = () => {
                 setLoading(false);
             }
         };
-
+    
         fetchData();
     }, [productId]);
+    
+    // Example of how to access user data for a specific review
+    const getUserDataForReview = (review) => {
+        return reviewUsers[review.user_id] || {}; // Return user data or an empty object if not found
+    };
+    
 
     const [averageReview, setAverageReview] = useState(0);
     const [selectedImage, setSelectedImage] = useState({});
@@ -74,9 +103,6 @@ const Product = () => {
         setDefaultImage();
     }, [images]);
 
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
     const getAverageReviews = (productReviews) => {
         if (productReviews.length > 0) {
             const totalRating = productReviews.reduce((sum, review) => {
@@ -96,6 +122,7 @@ const Product = () => {
     console.log("IMAGES: ", images);
     console.log("SELECTED IMAGE: ", selectedImage);
     console.log("REVIEWS: ", reviews);
+    console.log("REVIEWUSERS: ", reviewUsers);
     console.log("AVERAGE REVIEW: ", averageReview);
 
     const handleClickMiniImage = (image) => {
@@ -211,8 +238,15 @@ const Product = () => {
                                             className="w-7 mr-2 dark:text-white text-black"
                                         />
                                         <h2 className="font-bold text-[1.1rem]">
-                                            <Link to={`/product/${product.id}`}>
-                                                Anonymous
+                                            <Link
+                                                // to={`/user/${review.user_id}`}
+                                                to={`/product/${productId}`}
+                                            >
+                                                {/* {review.user_data.username &&
+                                                review.is_anonymous
+                                                    ? "Anonymous"
+                                                    : review.username} */}
+                                                anon
                                             </Link>
                                         </h2>
                                         <div className="flex items-center justify-center mx-4">
@@ -227,8 +261,7 @@ const Product = () => {
                         </ul>
                     </div>
 
-                    <div id="products"
-                    ></div>
+                    <div id="products"></div>
                 </div>
             ) : (
                 <div>Product not found</div>

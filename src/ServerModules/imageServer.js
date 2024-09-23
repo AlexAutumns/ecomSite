@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
 });
 
 // Endpoint to get images for a specific product by product ID
-router.get("/:productId", async (req, res) => {
+router.get("/product/:productId", async (req, res) => {
     const { productId } = req.params; // Extract productId from the path
 
     try {

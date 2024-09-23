@@ -17,6 +17,21 @@ CREATE TABLE categories (
     is_deleted BOOLEAN DEFAULT FALSE  -- Soft delete mechanism
 );
 
+CREATE TABLE stores (
+    id SERIAL PRIMARY KEY,                          -- Unique identifier for each store
+    store_name VARCHAR(100) NOT NULL,              -- Name of the store
+    email VARCHAR(100) UNIQUE,                      -- Unique email for contact
+    owner_id INTEGER REFERENCES users(id) NOT NULL, -- Foreign key referencing the users table
+    rating DECIMAL CHECK (rating >= 0 AND rating <= 5), -- Store rating between 0 and 5
+    is_deleted BOOLEAN DEFAULT FALSE,               -- Soft delete flag
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp for store creation
+    location VARCHAR(255),                          -- Physical location of the store (if applicable)
+    description TEXT,                               -- Description of the store for better SEO and user info
+    website_url VARCHAR(255),                       -- Optional URL for the store's website
+    phone_number VARCHAR(15)                        -- Contact phone number for the store
+);
+
+
 -- PRODUCTS TABLE
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
@@ -26,18 +41,21 @@ CREATE TABLE products (
     category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
     stock_quantity INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    store_id INTEGER REFERENCES stores(id) ON DELETE SET NULL,
     status VARCHAR(50) DEFAULT 'available'  -- Added for product status
 );
 
 -- REVIEW TABLE FOR PRODUCTS
 CREATE TABLE reviews (
     id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
     rating DECIMAL CHECK (rating >= 0 AND rating <= 5),
     review_desc TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_anonymous BOOLEAN DEFAULT FALSE  -- Indicates if the review is anonymous
 );
+
 
 -- PRODUCT IMAGES TABLE
 create table images (
@@ -105,6 +123,8 @@ CREATE TABLE cart_items (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
 
 
 

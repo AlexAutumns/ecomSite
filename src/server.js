@@ -7,6 +7,7 @@ import categoriesServerRoute from "./ServerModules/categoryServer.js";
 import productsServerRoute from "./ServerModules/productServer.js";
 import imagesServerRoute from "./ServerModules/imageServer.js";
 import reviewsServerRoute from "./ServerModules/reviewServer.js";
+import usersServersRoute from "./ServerModules/userServer.js";
 
 const { Client } = pkg; // Destructure to get the Client class
 
@@ -33,33 +34,12 @@ app.get("/", (req, res) => {
     );
 });
 
+app.use("/api/users", usersServersRoute);
 app.use("/api/products", productsServerRoute);
 app.use("/api/images", imagesServerRoute);
 app.use("/api/reviews", reviewsServerRoute);
 app.use("/api/categories", categoriesServerRoute);
 
-//
-// USER STUFF
-//
-
-// Endpoint to get users
-app.get("/api/users", async (req, res) => {
-    try {
-        const result = await client.query("SELECT * FROM users;");
-        const userList = result.rows.map((row) => ({
-            id: row.id,
-            username: row.username,
-            email: row.email,
-            user_pic_url: row.user_pic_url,
-            joined_at: row.joined_at,
-            is_deleted: row.is_deleted,
-        }));
-        res.json(userList);
-    } catch (err) {
-        console.error("Error fetching products:", err.stack);
-        res.status(500).send("Internal Server Error");
-    }
-});
 
 //
 // CART STUFF
@@ -180,7 +160,7 @@ app.get("/api/order-items", async (req, res) => {
 });
 
 //
-// PRODUCT STUFF
+// CATEGORY STUFF
 //
 
 // Endpoint to get all product categories
