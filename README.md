@@ -17,9 +17,13 @@ This is a WIP (Work in Progress), so some features are not yet finished / implem
 
 ## TO-DO LIST
 
+### Specific Item fetching
+- change some fetches to be just get all items matching the items selected
+
 ### LocalHost server
 
-In several files change the "http://localhost:5000/api/..." to what port you prefer or to an actual server location
+- In several files change the "http://localhost:5000/api/..." to what port you prefer or to an actual server location
+
 
 **Locations**
 
@@ -27,10 +31,14 @@ In several files change the "http://localhost:5000/api/..." to what port you pre
 -   `Product.jsx`
 -   `Hero.jsx`
 
+### Home page not loading sometimes
+- when ever user goes to the home page it sometimes wont load and just show a blank screen
+
 ### Server
 
 -   make sure passwords are encrypted when sent to the server
 -   some data should not be shown when finishing the site
+-   give a display name column for users
 
 -   #### Make Some GET Functions for Specific users / products
     ##### User Stuff
@@ -39,8 +47,7 @@ In several files change the "http://localhost:5000/api/..." to what port you pre
     -   Get specific wishlist items of an user
     -   Get specific order items of an user
     ##### Product Stuff
-    -   Get specific product
-    -   Get specific images of a product
+    - Search product with price and name or price and desc in `productServer.js`
 
 ### Dark Mode
 
